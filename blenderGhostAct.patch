@@ -1,0 +1,195 @@
+--- /data/data/au.com.darkside.XServer/blender/src//GhostActivity.java	2023-09-02 00:07:09.634836222 -0700
++++ /sdcard/blender/play/GhostActivity.java	2012-08-10 17:59:47.000000000 -0700
+@@ -1,4 +1,3 @@
+-
+ package org.blender.play;
+ 
+ 
+@@ -7,10 +6,8 @@
+ 
+ import android.app.Activity;
+ import android.os.Bundle;
+-import android.os.Build;
+ import android.view.*;
+ import android.content.*;
+-import android.content.pm.PackageManager;
+ import android.hardware.*;
+ import android.util.*;
+ import android.net.*;
+@@ -17,7 +14,5 @@
+ import javax.microedition.khronos.egl.*;
+ 
+-import java.lang.reflect.Method;
+-import java.lang.reflect.Modifier;
+ 
+ 
+ 
+@@ -37,8 +32,12 @@
+     {
+         super.onCreate(savedInstanceState);
+         
++        
++        
+         Uri data = getIntent().getData();
+-         Log.i("Blender","Started");
++        if(data != null || true){
++      
++        Log.i("Blender","Started");
+         mainSurface = new GhostSurface(data != null ? data.getPath() : "/sdcard/test.blend", getApplication());
+         setContentView(mainSurface);
+         SurfaceHolder holder = mainSurface.getHolder();
+@@ -59,6 +58,8 @@
+         
+         //sensors.registerListener(this, gyroscope, SensorManager.SENSOR_DELAY_GAME);        
+         
++        
++        }
+ 	    
+     }
+     
+@@ -104,6 +105,8 @@
+     public void onStart()
+     {
+     	super.onStart();
++    	
++	
+ 
+     }
+         
+@@ -118,12 +121,14 @@
+     public void onPause()
+     {
+     	super.onPause();
++    	BlenderNativeAPI.actionClose();
++    	
++    	finish(); 
++    	BlenderNativeAPI.exit(0);
+     }
++        
++    
+ 
+-    @Override public void onDestroy(){
+-    //	BlenderNativeAPI.actionClose(); finish(); BlenderNativeAPI.exit(0);
+-    }
+-
+     
+     @Override
+     public void onAccuracyChanged(Sensor sensor, int accuracy) 
+@@ -153,7 +158,6 @@
+ 
+ 
+ 
+-
+ class GhostSurface extends SurfaceView implements SurfaceHolder.Callback{
+ 
+ 	private EGLDisplay egldisplay = null;
+@@ -206,7 +210,8 @@
+     
+     public void surfaceChanged(SurfaceHolder holder,
+             int format, int width, int height) {
+-		//Log.i("Blender", "New size " + width + "x" + height);
++		Log.i("Blender", "New size " + width + "x" + height);
++	    
+ 		BlenderNativeAPI.eventWindowsResize(width, height);
+ 		BlenderNativeAPI.eventWindowsFocus();
+ 		BlenderNativeAPI.eventWindowsUpdate();
+@@ -213,4 +218,5 @@
+ 		
++		
+ 	}
+     
+     public void surfaceDestroyed(SurfaceHolder holder) {
+@@ -217,11 +223,6 @@
+         Log.i("Blender", "Surface Destroyed");
+-	BlenderNativeAPI.actionClose(); 
+     }
+-    public void handleResume(){
+-    }
+-    public void handlePause() {
+-    	//super.onPause();
+-    }
++    
+     public void SwapBuffers() {
+     	long ctime = Calendar.getInstance().getTimeInMillis();
+     	
+@@ -244,20 +245,22 @@
+     	return (this.getWidth() << 16) | this.getHeight();
+     }
+     	
+-    public void initSurface() {
+-     eglc = (EGL10)EGLContext.getEGL();
+-	egldisplay = eglc.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY);
+-	 
+-	 int[] ver = {0, 0};
+-	 eglc.eglInitialize(egldisplay, ver);
++	public void initSurface()
++	{
++		 eglc = (EGL10)EGLContext.getEGL();
+ 		 
+-	 int[][] configSpec = { 
+-		 {
+-			    EGL10.EGL_RED_SIZE, 8,
+-			    EGL10.EGL_BLUE_SIZE, 8,
+-			    EGL10.EGL_GREEN_SIZE, 8,
+-			    EGL10.EGL_DEPTH_SIZE,   16,
+-			    EGL10.EGL_ALPHA_SIZE, 8,
++		 egldisplay = eglc.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY);
++		 
++		 int[] ver = {0, 0};
++		 eglc.eglInitialize(egldisplay, ver);
++		 
++		 int[][] configSpec = { 
++				 {
++				    EGL10.EGL_RED_SIZE, 8,
++				    EGL10.EGL_BLUE_SIZE, 8,
++				    EGL10.EGL_GREEN_SIZE, 8,
++				    EGL10.EGL_DEPTH_SIZE,   16,
++				    EGL10.EGL_ALPHA_SIZE, 8,
+ 		            EGL10.EGL_RENDERABLE_TYPE,  4,
+ 		            EGL10.EGL_NONE
+ 				 },
+@@ -264,7 +267,7 @@
+ 				 {
+ 				    EGL10.EGL_RED_SIZE, 6,
+-			    EGL10.EGL_BLUE_SIZE, 6,
+-			    EGL10.EGL_GREEN_SIZE, 6,
++				    EGL10.EGL_BLUE_SIZE, 6,
++				    EGL10.EGL_GREEN_SIZE, 6,
+ 				    EGL10.EGL_DEPTH_SIZE,   16,
+ 				    EGL10.EGL_ALPHA_SIZE, 8,
+ 		            EGL10.EGL_RENDERABLE_TYPE,  4,
+@@ -301,7 +304,7 @@
+ 		 };
+ 		 
+ 		 
+-	 EGLConfig[] configs = new EGLConfig[1];
++		 EGLConfig[] configs = new EGLConfig[1];
+          int[] num_config = new int[1];
+          
+          int i;
+@@ -338,21 +341,6 @@
+          }
+ 				 
+ 	}
+-/*
+-  public void onRequestPermissionsResult(int ic,String[] lp,int[] gp){
+-     if(gp.length>0 && gp[0]==PackageManager.PERMISSION_GRANTED){
+-      //nativePermissionResult();
+-     }
+-  }
+-  public  void requestPermission(String ip,int ic){
+- //if(Build.VERSIION.SDK_INT<23) Compat.requestPermission(); else{
+-try{
+- if(((Activity)this.getContext()).getDeclaredMethod("checkSelfPermission",new Class[]{String.class}).invoke(ip)!=PackageManager.PERMISSION_GRANTED)((Activity)this.getContext()).getDeclaredMethod("requestPermissions",new Class[]{String[].class,Integer.class}).invoke(new String[]{ip},ic);
+-}catch(NoSuchMethodException e){}catch(SecurityException e){}
+-    }
+-*/ /*
+-  public  void requestPermission(String ip,int ic){
+- if(((Activity)this.getContext()).checkSelfPermission(ip)!=PackageManager.PERMISSION_GRANTED)((Activity)this.getContext()).requestPermissions(new String[]{ip},ic);
+-  }
+-*/
+-}
++	
++	
++}
+\ No newline at end of file
