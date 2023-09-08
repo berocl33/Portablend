@@ -4,7 +4,7 @@ import bpy#(if from a threaded process use
 _bpy=bpy#_bpy it is builtin to the binary)
 from code import InteractiveConsole as con
 from binascii import unhexlify as jim
-from 
+
 
 def execqueued(this=None):
   if(this in _bpy.data.scenes):
@@ -26,8 +26,9 @@ def register():
    cmdhash=repr(execqueue)[:-10];
    cmdindexs=[repr(af)[:-10] for af in bpy.app.handlers.scene_update]
    if cmdhash not in cmdindexs:
-     _bpy.app.handlers.scene_update_post.append(
+     _bpy.app.handlers.scene_update_post.append(execqueued)
    else:
      print('{WARN} not adding already registered(execqueue)');
+     #any added function will run repeated every couple millisecond 
    #fi
 #fed
