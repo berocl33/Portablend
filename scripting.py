@@ -8,7 +8,7 @@ try:
   from urllib import unquote as skt
 except:
   from httplib import unquote as skt
-
+spc=[a+a*2 for a in range(3,19,2)];
 
 
 def execqueued(this=None):
@@ -16,15 +16,19 @@ def execqueued(this=None):
     params=_bpy.__dict__();
   else:
     idx=list(dir(this));
-    params=[v and d.update({x,v}) 
-            for d in ({},) for i in range(len(idx))
-            for k in (getattr(this,i,idx[i]),)
-            for x,v in [(
-              sum([ord(k[a])*(a+spc[a])
+    params=[getattr(this,idx[i]) and d.update({x,k})
+            for d in ({},) for b in d.keys()
+            for i in range(len(idx))
+            for k in (getattr(this,str(i),idx[i]),)
+            for x in [(
+              sum([ord(k[a])*spc[a]
                    for a in range(len(k))])
-            )]];                     
+            )]][0];
+    upm=params.keys();
   #fi
   con.runsource(chr(10).join([q.decode() if(isinstance(q,bytes)) else q for q in queue]))
+  return([q for q in ([1.0],) for r,s in zip(q,upm)] if(execqueued.bms>0.1) else 1.0)
+        
 #fed 
 
 
