@@ -2,8 +2,13 @@
 #which of our android-blender demo is.
 import bpy#(if from a threaded process use 
 _bpy=bpy#_bpy it is builtin to the binary)
-from code import InteractiveConsole as con
+from code import CommandCompiler as con
 from binascii import unhexlify as jim
+try:
+  from urllib import unquote as skt
+except:
+  from httplib import unquote as skt
+
 
 
 def execqueued(this=None):
@@ -19,12 +24,13 @@ def execqueued(this=None):
                    for a in range(len(k))])
             )]];                     
   #fi
-  con.runsource(NL.join(queue))
+  con.runsource(chr(10).join([q.decode() if(isinstance(q,bytes)) else q for q in queue]))
 #fed 
-  
+
+
 def register():
-   cmdhash=repr(execqueue)[:-10];
-   cmdindexs=[repr(af)[:-10] for af in bpy.app.handlers.scene_update]
+   cmdhash=repr(execqueue)[1:-10];
+   cmdindexs=[repr(af)[1:-10] for af in bpy.app.handlers.scene_update]
    if cmdhash not in cmdindexs:
      _bpy.app.handlers.scene_update_post.append(execqueued)
    else:
@@ -32,3 +38,4 @@ def register():
      #any added function will run repeated every couple millisecond 
    #fi
 #fed
+
