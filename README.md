@@ -3,6 +3,7 @@
 AndroidBlenderDemo makeUseOf
   availability of the demo source is on svn.blender.org/svnroot/bf-blender/
     in this porting of the android_demo swiss_cheese(it does have many bugs/holes) soc-2012 revision. we want to update the interactions with the User primarily. see https://pb.abstind.webredirect.org for updates. otherwise continue with the fixes for the distribution on blender.org.
+   <img src="preview.jpg" alr="screenOfBlendPortraitView" />
 1. BlenderAndroidDemo use as is.
  many small problems arise with incompatible
  compressed image formats(ie: not visible ui
